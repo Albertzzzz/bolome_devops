@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<title>
+    Playpause
+</title>
+<body>
+<h3>Total pause count: {{ total_pause  }}</h3>
+<h3>卡顿设备分布：</h3>
+{% for playertype in cnt_device %}
+{{ playertype.0 }}: {{ playertype.1 }}<br>
+{% endfor %}
+<h3>卡顿CDN分布：</h3>
+{% for cdn_info in cdn_info_all %}
+</p>CDN节点：{{ cdn_info.0 }} 厂家：{{ cnd_info.1 }} <br>
+    卡顿客户端数：{{ cdn_info.2 }}
+</p>
+{% endfor %}
+<br>
+<a href={% url 'index' %}>卡顿时间分布</a>
+</body>
+</html>

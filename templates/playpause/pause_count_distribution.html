@@ -1,0 +1,15 @@
+<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<html>
+<head>
+<title>Playpause Count Distribution</title>
+</head>
+<body>
+<h3>卡顿次数分布：</h3>
+<table border="0">
+    {% for distribution_info in distribution_info_all %}
+    <tr>
+    <td>卡顿{{ distribution_info.0 }}</td><td>次的用户数：{{ distribution_info.1 }}</td><td>占比：</td><td>{{ distribution_info.2 }}%</td>
+    </tr>
+    {% endfor %}
+</body>
+</html>

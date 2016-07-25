@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<title>
+    Playpause
+</title>
+<body>
+<h3>请选择日期：</h3>
+<form action={% url 'pause_count_distribution' %} method="get">
+    <input type="text" name="date_search">
+    <h4>请指定时间段：（不指定为默认12:30:00--14:00:00）</h4>
+    <input type="text" name="start">--<input type="text" name="end">
+    <input type="submit" value="Search">
+</form>
+</body>
+</html>

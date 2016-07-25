@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+<title>
+    Playpause
+</title>
+<body>
+<h3>请选择日期：</h3>
+<form action={% url 'search' %} method="get">
+        <input type="text" name="start">--<input type="text" name="end">
+        <input type="submit" value="Search">
+    </form>
+</body>
+</html>
