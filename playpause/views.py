@@ -2,8 +2,9 @@
 from django.http import HttpResponse
 from django.shortcuts import render
 from pymongo import MongoClient
-from collections import Counter
+from collections import Counter, defaultdict
 # import logging
+from .common_func import get_cdn_name, get_ip_info
 
 # Create your views here.
 def index(request):
@@ -19,13 +20,16 @@ def pause_count_distribution(request):
         end = request.GET['end']
     else:
         return render(request, 'playpause/error.html')
+    if 'playpause' in request.GET:
+        playpause = request.GET['playpause']
+    else:
+        return render(request, 'playpause/error.html')
 
     if date_search == '':
         return HttpResponse("错误！！</br>日期为空")
-    if start == '' or end == '':
-        start = "12:30:00"
-        end = "14:00:00"
-
+#     if start == '' or end == '':
+        # start = "12:30:00"
+        # end = "14:00:00"
     start_search = date_search+"T"+start+"Z"
     end_search = date_search+"T"+end+"Z"
     # return HttpResponse(start_search)
@@ -36,27 +40,70 @@ def pause_count_distribution(request):
 
     docs = db.playpause.find(
         {'inserttime': {'$gte':start_search, '$lte':end_search}, 'playpause.header.live': True},
-        projection = {'_id': False, 'playpause.header': True, 'playpause.content':True}
+        projection = {'_id': False, 'playpause.header': True, 'playpause.content':True, 'inserttime': True}
     )
     # return HttpResponse(docs)
 
-    pause_tourid = Counter()
-    total_pause = 0
+    if playpause == 'playpause_analysis':
+        # return HttpResponse(playpause)
+        total_pause = 0
+        cnt_device = Counter()
+        cnt_cdnip = Counter()
+        cdnip2selfip = defaultdict(list)
+        cdnip2url = defaultdict(list)
 
-    for doc in docs:
-        tourid = doc['playpause']['header']['tourid']
-        total_pause += 1
-        pause_tourid[tourid] += 1
+        for doc in docs:
+            url = doc['playpause']['header']['url']
+            playertype = doc['playpause']['header']['playertype']
+            cdnip = doc['playpause']['content']['cdnip']
+            selfip = doc['playpause']['content']['selfip']
+            dns = doc['playpause']['content']['dns']
 
-    pause_distribution = Counter()
-    for pause_info in pause_tourid.most_common():
-        tmp = pause_info[1]
-        pause_distribution[tmp] += 1
+            total_pause += 1
+            cnt_device[playertype] += 1
+            cnt_cdnip[cdnip] += 1
+            cdnip2url[cdnip].append(url)
+            cdnip2selfip[cdnip].append([selfip, dns])
 
-    distribution_info_all = []
-    for distribution_info in sorted(pause_distribution.most_common()):
-        percentage = round((float(distribution_info[0] * distribution_info[1])*100 /total_pause),2)
-        tmp_data = [distribution_info[0], distribution_info[1], percentage]
-        distribution_info_all.append(tmp_data)
+        cdnip_info_all = []
+        for cdnip_info in cnt_cdnip.most_common():
+            tmp = ''
+            for url_info in cdnip2url[cdnip_info[0]]:
+                tmp = url_info
+            cdnip_info = [get_ip_info(cdnip_info[0]), get_cdn_name(tmp), cdnip_info[1]]
+            cdnip_info_all.append(cdnip_info)
 
-    return render(request, "playpause/pause_count_distribution.html", {'distribution_info_all': distribution_info_all})
+        return render(request, 'playpause/playpause_analysis.html', {'total_pause': total_pause, 'cnt_device': cnt_device.most_common(), 'cnt_cdnip': cdnip_info_all})
+
+    elif playpause == 'pause_count_distribution':
+        pause_tourid = Counter()
+        total_pause = 0
+
+        for doc in docs:
+            tourid = doc['playpause']['header']['tourid']
+            total_pause += 1
+            pause_tourid[tourid] += 1
+
+        pause_distribution = Counter()
+        for pause_info in pause_tourid.most_common():
+            tmp = pause_info[1]
+            pause_distribution[tmp] += 1
+
+        distribution_info_all = []
+        for distribution_info in sorted(pause_distribution.most_common()):
+            percentage = round((float(distribution_info[0] * distribution_info[1])*100 /total_pause),2)
+            tmp_data = [distribution_info[0], distribution_info[1], percentage]
+            distribution_info_all.append(tmp_data)
+
+        return render(request, "playpause/pause_count_distribution.html", {'distribution_info_all': distribution_info_all})
+    elif playpause == 'pause_mins_distribution':
+        # return HttpResponse(playpause)
+        pause_mins = Counter()
+        pause_mins_all = []
+        for doc in docs:
+            inserttime = doc['inserttime']
+            pause_mins[inserttime[:16]] += 1
+        for mins_info in sorted(pause_mins.most_common()):
+            pause_mins_all.append([mins_info[0], mins_info[1]])
+
+        return render(request, 'playpause/pause_mins_distribution.html', {'pause_mins_all': pause_mins_all})

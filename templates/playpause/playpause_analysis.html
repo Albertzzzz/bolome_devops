@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<title>卡顿日志分析</title>
+<body>
+<h3>总卡顿次数: {{ total_pause }}</h3>
+<h3>卡顿设备分布:</h3>
+<blockquote>
+{% for playertype in cnt_device %}
+{{ playertype.0 }}:&nbsp;&nbsp;{{ playertype.1 }}<br>
+{% endfor %}
+</blockquote>
+<h3>卡顿CDN分布:</h3>
+{% for cdnip_info  in cnt_cdnip %}
+</p>CDN节点:{{ cdnip_info.0 }} 厂家:{{ cdnip_info.1 }} <br>
+    <!--卡顿客户端数：{{ cdn_info.2 }}-->
+</p>
+{% endfor %}
+<br>
+</body>
+</html>

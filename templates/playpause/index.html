@@ -8,7 +8,10 @@
 <form action={% url 'pause_count_distribution' %} method="get">
     <input type="text" name="date_search">
     <h4>请指定时间段：（不指定为默认12:30:00--14:00:00）</h4>
-    <input type="text" name="start">--<input type="text" name="end">
+    <p><input type="text" name="start" value="12:30:00">--<input type="text" name="end" value="14:00:00"></p>
+    <p> <input type="radio" name="playpause" value="playpause_analysis" checked="checked">卡顿分析</p>
+    <p> <input type="radio" name="playpause" value="pause_count_distribution">卡顿次数分布</p>
+    <p> <input type="radio" name="playpause" value="pause_mins_distribution">卡顿时间分布</p>
     <input type="submit" value="Search">
 </form>
 </body>
