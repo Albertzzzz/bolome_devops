@@ -45,7 +45,6 @@ def pause_count_distribution(request):
     # return HttpResponse(docs)
 
     if playpause == 'playpause_analysis':
-        # return HttpResponse(playpause)
         total_pause = 0
         cnt_device = Counter()
         cnt_cdnip = Counter()
@@ -70,8 +69,26 @@ def pause_count_distribution(request):
             tmp = ''
             for url_info in cdnip2url[cdnip_info[0]]:
                 tmp = url_info
-            cdnip_info = [get_ip_info(cdnip_info[0]), get_cdn_name(tmp), cdnip_info[1]]
+            cnt_selfip = Counter()
+            selfip_dns = {}
+            selfip_info_all =[]
+            for selfip, dns in cdnip2selfip[cdnip_info[0]]:
+                cnt_selfip[selfip] += 1
+                if dns != '':
+                    selfip_dns[selfip] = dns
+            for selfip_info in cnt_selfip.most_common():
+                dns_ip = ''
+                try:
+                    dns_ip =selfip_dns[selfip_info[0]]
+                except KeyError:
+                    dns_ip = 'No DNS info'
+                selfip_info_all.append([get_ip_info(selfip_info[0]), selfip_info[1], get_ip_info(dns_ip)])
+
+
+            cdnip_info = [get_ip_info(cdnip_info[0]), get_cdn_name(tmp), cdnip_info[1], selfip_info_all]
+
             cdnip_info_all.append(cdnip_info)
+
 
         return render(request, 'playpause/playpause_analysis.html', {'total_pause': total_pause, 'cnt_device': cnt_device.most_common(), 'cnt_cdnip': cdnip_info_all})
 

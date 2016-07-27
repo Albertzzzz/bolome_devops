@@ -11,10 +11,20 @@
 </blockquote>
 <h3>卡顿CDN分布:</h3>
 {% for cdnip_info  in cnt_cdnip %}
-</p>CDN节点:{{ cdnip_info.0 }} 厂家:{{ cdnip_info.1 }} <br>
-    <!--卡顿客户端数：{{ cdn_info.2 }}-->
-</p>
+    {% ifequal cdnip_info.0 'ip format is invalid' %}
+        <p>CDN节点:{{ cdnip_info.0 }} 厂家: <br>
+        卡顿客户端数：{{ cdnip_info.2 }}
+        </p>
+    {% else %}
+        <p>CDN节点:{{ cdnip_info.0 }} 厂家:{{ cdnip_info.1 }} <br>
+            卡顿客户端数：{{ cdnip_info.2 }}
+        </p>
+    {% endifequal %}
+    <table border="0">
+    {% for cdnip2selfip in cdnip_info.3 %}
+        <tr><td width="400">{{ cdnip2selfip.0 }}</td><td width="50">{{ cdnip2selfip.1 }}</td><td width="400" align="right">{{ cdnip2selfip.2 }}</td></tr>
+    {% endfor %}
+    </table>
 {% endfor %}
-<br>
 </body>
 </html>

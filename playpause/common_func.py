@@ -29,8 +29,10 @@ def get_ip_info(ip_addr):
             if ip_info != 'N/A':
                 ip_info_list = ip_info.split("\t")
                 info = '{}({} {} {})'.format(ip_addr, ip_info_list[1], ip_info_list[2], ip_info_list[4])
+    elif ip_addr == 'No DNS info':
+        info = 'No DNS info'
     else:
-        info = "DNS ip format is invalid"
+        info = "ip format is invalid"
     return info
 
 IPX.load(os.path.abspath("/usr/local/lib/python2.7/dist-packages/mydata4vipday2.datx"))
